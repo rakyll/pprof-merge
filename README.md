@@ -1,5 +1,7 @@
 # pprof-merge
 
+Merges multiple pprof profile files into one.
+
 ## Installation
 
 ```
