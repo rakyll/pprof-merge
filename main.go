@@ -47,4 +47,8 @@ func main() {
 	if err := merged.Write(out); err != nil {
 		log.Fatalf("Cannot write merged profile to file: %v", err)
 	}
+
+	if err := out.Close(); err != nil {
+		log.Printf("Error when closing the output file: %v", err)
+	}
 }
