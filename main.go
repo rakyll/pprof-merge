@@ -22,28 +22,34 @@ import (
 	"github.com/google/pprof/profile"
 )
 
-var (
-	output string
-)
-
 func main() {
-	flag.StringVar(&output, "o", "merged.data", "")
+	outputFile := flag.String("o", "", "output file path")
 	flag.Parse()
 
-	files := os.Args[1:]
+	// Parse the command-line arguments
+	flag.Parse()
+
+	// Get the positional arguments
+	files := flag.Args()
+
+	// Check if the output file flag is provided
+	if *outputFile == "" {
+		log.Panicln("Output file path is required")
+	}
+
 	if len(files) == 0 {
-		log.Fatal("Give profiles files as arguments")
+		log.Panicln("Give profiles files as arguments")
 	}
 
 	var profiles []*profile.Profile
 	for _, fname := range files {
 		f, err := os.Open(fname)
 		if err != nil {
-			log.Fatalf("Cannot open profile file at %q: %v", fname, err)
+			log.Panicf("Cannot open profile file at %q: %v", fname, err)
 		}
 		p, err := profile.Parse(f)
 		if err != nil {
-			log.Fatalf("Cannot parse profile at %q: %v", fname, err)
+			log.Panicf("Cannot parse profile at %q: %v", fname, err)
 		}
 		profiles = append(profiles, p)
 	}
@@ -53,16 +59,16 @@ func main() {
 		log.Fatalf("Cannot merge profiles: %v", err)
 	}
 
-	out, err := os.OpenFile(output, os.O_RDWR|os.O_CREATE, 0755)
+	out, err := os.OpenFile(*outputFile, os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
-		log.Fatalf("Cannot open output to write: %v", err)
+		log.Panicf("Cannot open output to write: %v", err)
 	}
 
 	if err := merged.Write(out); err != nil {
-		log.Fatalf("Cannot write merged profile to file: %v", err)
+		log.Panicf("Cannot write merged profile to file: %v", err)
 	}
 
 	if err := out.Close(); err != nil {
-		log.Printf("Error when closing the output file: %v", err)
+		log.Panicf("Error when closing the output file: %v", err)
 	}
 }
